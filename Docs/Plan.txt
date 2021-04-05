@@ -28,4 +28,24 @@ PCB:
 	Etch PCB
 	Clean
 	Cut out PCB / Drill holes
-	
+
+---- Microcontroller ----
+Boards:
+	Teensy 4.0
+	Teensy 4.1
+	Teensy 3.2
+	Teensy 3.5/3.6
+	STM32 board?
+Chips:
+	ARM Cortex M4 / M7
+	Atmega 32u4
+
+--- Switches / Keycaps ----
+Switches:
+	Cherry MX
+	Alps
+	Generic tactile pushbuttons
+	Other microswitch options
+Keycaps:
+	Custom 3d printed
+	Order Cherry MX / Alps Keycaps
