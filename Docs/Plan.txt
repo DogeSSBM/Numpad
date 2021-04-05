@@ -49,3 +49,9 @@ Switches:
 Keycaps:
 	Custom 3d printed
 	Order Cherry MX / Alps Keycaps
+
+---- Enclosure ----
+DIY:
+	3D print clamshell enclosure
+Other:
+	Build wood enclosure
