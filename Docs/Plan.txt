@@ -1,0 +1,31 @@
+-------- Numeric keypad planning / brainstorming doc --------
+
+Considerations / Parts:
+	Connectivity
+	Main Board
+	Microcontroller
+	Switches / Keycaps
+	Enclosure
+
+---- Connectivity ----
+Detachable USB cable:
+	Male type A to male Micro USB
+	Male type A to male USB C
+	Male type A to male USB type A
+	Male type A to male USB type A
+	Male type A to male RJ45
+	Male type A to male RJ11
+Wireless:
+	Standalone Bluetooth device
+	Wireless USB dongle
+	Wireless Logitech / USB dongle
+
+---- Main Board ----
+PCB:
+	Create 2 side schematic using KiCad
+	Print each side of schematic onto transparent transfer medium
+	Transfer to double sided copper clad laminate
+	Etch PCB
+	Clean
+	Cut out PCB / Drill holes
+	
