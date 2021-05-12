@@ -1,47 +1,56 @@
 #include <stdint.h>
 #define LED			LED_BUILTIN
-#define ROW_NUM		5
-#define COL_NUM		4
+#define X_NUM		4
+#define Y_NUM		5
 typedef unsigned int	uint;
 
-typedef enum {COL_A=2, COL_B, COL_C, COL_D}Col;
-typedef enum {ROW_1=6, ROW_2, ROW_3, ROW_4, ROW_5}Row;
+const static uint xArr[X_NUM] = {2, 3, 4, 5};
+const static uint yArr[Y_NUM] = {6, 7, 8, 9, 10};
 
-const static Col colArr[COL_NUM] = {COL_A, COL_B, COL_C, COL_D};
-const static Row rowArr[ROW_NUM] = {ROW_1, ROW_2, ROW_3, ROW_4, ROW_5};
+static bool numpadState[X_NUM][Y_NUM] = {0};
+static bool numpadStateLast[X_NUM][Y_NUM] = {0};
 
-static bool numpadState[COL_NUM][ROW_NUM] = {0};
-static bool numpadStateLast[COL_NUM][ROW_NUM] = {0};
-
-void setup() {
-	pinMode(LED, OUTPUT);
-
-	for(uint row = 0; row < ROW_NUM; row++){
-		pinMode(rowArr[row], INPUT_PULLUP);
+void printAll(void)
+{
+	for(uint y = 0; y < Y_NUM; y++){
+		for(uint x = 0; x < X_NUM; x++){
+			Serial.print(numpadState[x][y]? "#" : "-");
+		}
+		Serial.print("\n");
 	}
-	for(uint col = 0; col < COL_NUM; col++){
-		pinMode(colArr[col], INPUT);
+	Serial.print("\n");
+}
+
+void setup()
+{
+	pinMode(LED, OUTPUT);
+	Serial.begin(9600);
+	while(!Serial.dtr());
+	delay(1000);
+	Serial.println("Starting...");
+	for(uint y = 0; y < Y_NUM; y++){
+		pinMode(yArr[y], INPUT_PULLUP);
+	}
+	for(uint x = 0; x < X_NUM; x++){
+		digitalWrite(xArr[x], HIGH);
+		pinMode(xArr[x], INPUT);
 	}
 }
 
-void loop() {
+void loop()
+{
 	digitalWrite(LED, HIGH);
-	for(uint col = 0; col < COL_NUM; col++){
-		pinMode(colArr[col], OUTPUT);
-		digitalWrite(colArr[col], LOW);
-		for(uint row = 0; row < ROW_NUM; row++){
-			numpadStateLast[col][row] = numpadState[col][row];
-			numpadState[col][row] = !digitalRead(rowArr[row]);
+	for(uint x = 0; x < X_NUM; x++){
+		pinMode(xArr[x], OUTPUT);
+		digitalWrite(xArr[x], LOW);
+		for(uint y = 0; y < Y_NUM; y++){
+			numpadStateLast[x][y] = numpadState[x][y];
+			numpadState[x][y] = !digitalRead(yArr[y]);
 		}
-		digitalWrite(colArr[col], HIGH);
-		pinMode(colArr[col], INPUT);
+		digitalWrite(xArr[x], HIGH);
+		pinMode(xArr[x], INPUT);
 	}
 	digitalWrite(LED, LOW);
-
+	printAll();
+	delay(100);
 }
-
-// bool pressedRC(const Row row, const Col col)
-// {
-//
-// 	return false;
-// }
