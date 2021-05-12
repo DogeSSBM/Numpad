@@ -1,0 +1,100 @@
+#include <stdint.h>
+#include <map>
+#include <vector>
+#define LED LED_BUILTIN
+
+using uint = unsigned int;
+using namespace std;
+
+vector<uint> cols = { 2, 3, 4, 5 };
+vector<uint> rows = { 6, 7, 8, 9, 10 };
+
+bool state[5][4];
+bool prevState[5][4];
+// bool state[4][5];
+// bool prevState[4][5];
+
+void printStateChanges() {
+	Serial.println("  A B C D");
+	for (uint row = 0; row < 5; row++) {
+		Serial.print(row, DEC);
+		for (uint col = 0; col < 4; col++) {
+			Serial.print(" ");
+			char ch = ' ';
+			if (state[col][row]) {
+				ch = prevState[row][col] ? 'H' : 'P';
+			} else if (prevState[row][col]) {
+				ch = 'R';
+			}
+			Serial.print(ch);
+		}
+		Serial.print('\n');
+	}
+	Serial.print('\n');
+	Serial.send_now();
+	Serial.flush();
+}
+
+
+void printState() {
+	Serial.println("  A B C D");
+	for (uint row = 0; row < 5; row++) {
+		Serial.print(row, DEC);
+		for (uint col = 0; col < 4; col++) {
+			Serial.print(" ");
+			Serial.print(state[row][col] ? '1' : '0');
+		}
+		Serial.print('\n');
+	}
+	Serial.print('\n');
+	Serial.send_now();
+	Serial.flush();
+}
+
+void setup() {
+	Serial.begin(9600);
+	while(!Serial.dtr());
+	delay(1000);
+	Serial.println("Starting...");
+	pinMode(LED, OUTPUT);
+	for (const uint &i : cols)
+		pinMode(i, INPUT);
+	for (const uint &i : rows)
+		pinMode(i, INPUT_PULLUP);
+	Serial.send_now();
+	Serial.flush();
+}
+
+void loop() {
+	bool stateChange = false;
+	digitalWrite(LED, HIGH);
+	for (const uint &colPin : cols) {
+		const int col = colPin - 2;
+		pinMode(colPin, OUTPUT);
+		digitalWrite(colPin, LOW);
+
+		for (const uint &rowPin : rows) {
+			const int row = rowPin - 6;
+			prevState[col][row] = state[col][row];
+			state[col][row] = !digitalRead(rowPin);
+			stateChange = stateChange || (prevState[col][row] != state[col][row]);
+		}
+
+		digitalWrite(colPin, HIGH);
+		pinMode(colPin, INPUT);
+	}
+	digitalWrite(LED, LOW);
+	if (stateChange)
+		printState();
+}
+
+
+// std::map<char, uint> cols = {
+// 	{ 'A', 2 }, { 'B', 3 }, { 'C', 4 }, { 'D', 5 }
+// };
+// std::map<char, uint> rows = {
+// 	{ '1', 6 }, { '2', 7 }, { '3', 8 }, { '4', 9 }, { '5', 10 }
+// };
+
+// std::vector<std::vector<bool>> state[4][5];
+// std::vector<std::vector<bool>> prevState[4][5];

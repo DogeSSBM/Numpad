@@ -13,12 +13,6 @@ const static Row rowArr[ROW_NUM] = {ROW_1, ROW_2, ROW_3, ROW_4, ROW_5};
 static bool numpadState[COL_NUM][ROW_NUM] = {0};
 static bool numpadStateLast[COL_NUM][ROW_NUM] = {0};
 
-bool pressedRC(const Row row, const Col col)
-{
-
-	return false;
-}
-
 void setup() {
 	pinMode(LED, OUTPUT);
 
@@ -42,4 +36,12 @@ void loop() {
 		digitalWrite(colArr[col], HIGH);
 		pinMode(colArr[col], INPUT);
 	}
+	digitalWrite(LED, LOW);
+
 }
+
+// bool pressedRC(const Row row, const Col col)
+// {
+//
+// 	return false;
+// }
