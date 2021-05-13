@@ -1,20 +1,20 @@
 #include <stdint.h>
 #define LED			LED_BUILTIN
-#define X_NUM		4
-#define Y_NUM		5
+#define C_NUM		4
+#define R_NUM		5
 typedef unsigned int	uint;
 
-const static uint xArr[X_NUM] = {2, 3, 4, 5};
-const static uint yArr[Y_NUM] = {6, 7, 8, 9, 10};
+const static uint cArr[C_NUM] = {2, 3, 4, 5};
+const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
 
-static bool numpadState[X_NUM][Y_NUM] = {0};
-static bool numpadStateLast[X_NUM][Y_NUM] = {0};
+static bool numpadState[C_NUM][R_NUM] = {0};
+static bool numpadStateLast[C_NUM][R_NUM] = {0};
 
 void printAll(void)
 {
-	for(uint y = 0; y < Y_NUM; y++){
-		for(uint x = 0; x < X_NUM; x++){
-			Serial.print(numpadState[x][y]? "#" : "-");
+	for(uint r = 0; r < R_NUM; r++){
+		for(uint c = 0; c < C_NUM; c++){
+			Serial.print(numpadState[c][r]? "#" : "-");
 		}
 		Serial.print("\n");
 	}
@@ -28,29 +28,26 @@ void setup()
 	while(!Serial.dtr());
 	delay(1000);
 	Serial.println("Starting...");
-	for(uint y = 0; y < Y_NUM; y++){
-		pinMode(yArr[y], INPUT_PULLUP);
+	for(uint r = 0; r < R_NUM; r++){
+		pinMode(rArr[r], INPUT_PULLUP);
 	}
-	for(uint x = 0; x < X_NUM; x++){
-		digitalWrite(xArr[x], HIGH);
-		pinMode(xArr[x], INPUT);
+	for(uint c = 0; c < C_NUM; c++){
+		pinMode(cArr[c], INPUT);
 	}
 }
 
 void loop()
 {
-	digitalWrite(LED, HIGH);
-	for(uint x = 0; x < X_NUM; x++){
-		pinMode(xArr[x], OUTPUT);
-		digitalWrite(xArr[x], LOW);
-		for(uint y = 0; y < Y_NUM; y++){
-			numpadStateLast[x][y] = numpadState[x][y];
-			numpadState[x][y] = !digitalRead(yArr[y]);
+	for(uint c = 0; c < C_NUM; c++){
+		pinMode(cArr[c], OUTPUT);
+		digitalWrite(cArr[c], LOW);
+		for(uint r = 0; r < R_NUM; r++){
+			numpadStateLast[c][r] = numpadState[c][r];
+			numpadState[c][r] = !digitalRead(rArr[r]);
 		}
-		digitalWrite(xArr[x], HIGH);
-		pinMode(xArr[x], INPUT);
+		digitalWrite(cArr[c], HIGH);
+		pinMode(cArr[c], INPUT);
 	}
-	digitalWrite(LED, LOW);
 	printAll();
 	delay(100);
 }
