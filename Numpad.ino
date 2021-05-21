@@ -38,16 +38,21 @@ void setup()
 
 void loop()
 {
+	bool changed = false;
 	for(uint c = 0; c < C_NUM; c++){
 		pinMode(cArr[c], OUTPUT);
 		digitalWrite(cArr[c], LOW);
 		for(uint r = 0; r < R_NUM; r++){
+			pinMode(rArr[r], INPUT_PULLUP);
+			delay(10);
 			numpadStateLast[c][r] = numpadState[c][r];
 			numpadState[c][r] = !digitalRead(rArr[r]);
+			pinMode(rArr[r], INPUT);
+			changed |= numpadStateLast[c][r] != numpadState[c][r];
 		}
-		digitalWrite(cArr[c], HIGH);
 		pinMode(cArr[c], INPUT);
 	}
-	printAll();
+	if(changed)
+		printAll();
 	delay(100);
 }
