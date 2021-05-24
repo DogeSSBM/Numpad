@@ -6,6 +6,27 @@
 #define KEYMAP_NUM	1
 typedef unsigned int	uint;
 
+typedef struct{
+	struct{
+		uint pin;
+		int min;
+		int max;
+		int state;
+	}x;
+	struct{
+		uint pin;
+		int min;
+		int max;
+		int state;
+	}y;
+	struct{
+		uint pin;
+		bool state;
+	}btn;
+}Stick;
+
+Stick stick = {0};
+
 const static uint cArr[C_NUM] = {2, 3, 4, 5};
 const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
 
@@ -18,28 +39,12 @@ const int numpad[C_NUM][R_NUM] = {
 	{KEYPAD_MINUS,KEYPAD_PLUS,KEYPAD_PLUS,KEYPAD_ENTER,KEYPAD_ENTER}
 };
 
-// const char numpad[C_NUM][R_NUM] = {
-// 	{KEY_NUM_LOCK,		KEYPAD_SLASH,		KEYPAD_ASTERIX,		KEYPAD_MINUS},
-// 	{KEYPAD_7,			KEYPAD_8,			KEYPAD_9,			KEYPAD_PLUS},
-// 	{KEYPAD_4,			KEYPAD_5,			KEYPAD_6,			KEYPAD_PLUS},
-// 	{KEYPAD_1,			KEYPAD_2,			KEYPAD_3,			KEYPAD_ENTER},
-// 	{KEYPAD_0,			KEYPAD_0,			KEYPAD_PERIOD,		KEYPAD_ENTER}
-// };
-
 const char numpadLabel[C_NUM][R_NUM] = {
 	{'L','7','4','1','0'},
 	{'/','8','5','2','0'},
 	{'*','9','6','3','.'},
 	{'-','+','+','E','E'}
 };
-
-// const char numpadLabel[C_NUM][R_NUM] = {
-// 	{'L',				'/',				'*',				'-'},
-// 	{'7',				'8',				'9',				'+'},
-// 	{'4',				'5',				'6',				'+'},
-// 	{'1',				'2',				'3',				'E'},
-// 	{'0',				'0',				'.',				'E'}
-// };
 
 void printAll(void)
 {
@@ -54,6 +59,15 @@ void printAll(void)
 
 void setup()
 {
+	stick.x.pin = A9;
+	stick.x.state = 0;
+
+	stick.y.pin = A8;
+	stick.y.state = 0;
+
+	stick.btn.pin = 11;
+	stick.btn.state = 0;
+
 	pinMode(LED, OUTPUT);
 	Serial.begin(9600);
 	while(!Serial.dtr());
@@ -65,12 +79,13 @@ void setup()
 	for(uint c = 0; c < C_NUM; c++){
 		pinMode(cArr[c], INPUT);
 	}
+	pinMode(stick.btn.pin, INPUT_PULLUP);
 }
 
 void loop()
 {
 	static elapsedMillis numUpdated[C_NUM][R_NUM] = {0};
-	static uint selection = 0;
+	// static uint selection = 0;
 
 	bool changed = false;
 	for(uint c = 0; c < C_NUM; c++){
@@ -78,17 +93,17 @@ void loop()
 		digitalWrite(cArr[c], LOW);
 		for(uint r = 0; r < R_NUM; r++){
 			pinMode(rArr[r], INPUT_PULLUP);
-			delay(10);
+			delayMicroseconds(100);
 			const bool state = !digitalRead(rArr[r]);
 			if(numUpdated[c][r] > 50 && state != numState[c][r]){
 				numUpdated[c][r] = 0;
 				numState[c][r] = state;
 				changed = true;
-				if(state)
-					Keyboard.press(numpad[c][r]);
-				else
-					Keyboard.release(numpad[c][r]);
-				Keyboard.send_now();
+				// if(state)
+				// 	Keyboard.press(numpad[c][r]);
+				// else
+				// 	Keyboard.release(numpad[c][r]);
+				// Keyboard.send_now();
 			}
 			pinMode(rArr[r], INPUT);
 		}
@@ -96,4 +111,28 @@ void loop()
 	}
 	if(changed)
 		printAll();
+
+	changed = false;
+
+	const bool btn = !digitalRead(stick.btn.pin);
+	changed |= btn != stick.btn.state;
+	stick.btn.state = btn;
+
+	const int xval = analogRead(stick.x.pin);
+	const int xdif = abs(xval - stick.x.state);
+	changed |= xdif > 10;
+	stick.x.state = xval;
+
+	const int yval = analogRead(stick.y.pin);
+	const int ydif = abs(yval - stick.y.state);
+	changed |= ydif > 10;
+	stick.y.state = yval;
+
+	char buf[32] = {0};
+	sprintf(buf, "(%4i, %4i) %s\n",
+		stick.x.state, stick.y.state, stick.btn.state?"PRESSED":"RELEASED"
+	);
+
+	if(changed)
+		Serial.print(buf);
 }
