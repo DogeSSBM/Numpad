@@ -10,27 +10,34 @@ const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
 
 bool numState[C_NUM][R_NUM] = {0};
 
-const char numpad[C_NUM][R_NUM] = {
-	{KEY_NUM_LOCK,		KEYPAD_SLASH,		KEYPAD_ASTERIX,		KEYPAD_MINUS},
-	{KEYPAD_7,			KEYPAD_8,			KEYPAD_9,			KEYPAD_PLUS},
-	{KEYPAD_4,			KEYPAD_5,			KEYPAD_6,			KEYPAD_PLUS},
-	{KEYPAD_1,			KEYPAD_2,			KEYPAD_3,			KEYPAD_ENTER},
-	{KEYPAD_0,			KEYPAD_0,			KEYPAD_PERIOD,		KEYPAD_ENTER}
-};
+// const char numpad[C_NUM][R_NUM] = {
+// 	{KEY_NUM_LOCK,		KEYPAD_SLASH,		KEYPAD_ASTERIX,		KEYPAD_MINUS},
+// 	{KEYPAD_7,			KEYPAD_8,			KEYPAD_9,			KEYPAD_PLUS},
+// 	{KEYPAD_4,			KEYPAD_5,			KEYPAD_6,			KEYPAD_PLUS},
+// 	{KEYPAD_1,			KEYPAD_2,			KEYPAD_3,			KEYPAD_ENTER},
+// 	{KEYPAD_0,			KEYPAD_0,			KEYPAD_PERIOD,		KEYPAD_ENTER}
+// };
 
 const char numpadLabel[C_NUM][R_NUM] = {
-	{'L',				'/',				'*',				'-'},
-	{'7',				'8',				'9',				'+'},
-	{'4',				'5',				'6',				'+'},
-	{'1',				'2',				'3',				'E'},
-	{'0',				'0',				'.',				'E'}
+	{'L','7','4','1','0'},
+	{'/','8','5','2','0'},
+	{'*','9','6','3','.'},
+	{'-','+','+','E','E'}
 };
+
+// const char numpadLabel[C_NUM][R_NUM] = {
+// 	{'L',				'/',				'*',				'-'},
+// 	{'7',				'8',				'9',				'+'},
+// 	{'4',				'5',				'6',				'+'},
+// 	{'1',				'2',				'3',				'E'},
+// 	{'0',				'0',				'.',				'E'}
+// };
 
 void printAll(void)
 {
 	for(uint r = 0; r < R_NUM; r++){
 		for(uint c = 0; c < C_NUM; c++){
-			Serial.print(numState[c][r]? numpadLabel[c][r] : ' ');
+			Serial.print(numState[c][r]? numpadLabel[c][r] : '#');
 		}
 		Serial.print("\n");
 	}
@@ -63,6 +70,7 @@ void loop()
 		digitalWrite(cArr[c], LOW);
 		for(uint r = 0; r < R_NUM; r++){
 			pinMode(rArr[r], INPUT_PULLUP);
+			delay(10);
 			const bool state = !digitalRead(rArr[r]);
 			if(numUpdated[c][r] > 50 && state != numState[c][r]){
 				numUpdated[c][r] = 0;
