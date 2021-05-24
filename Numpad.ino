@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <Keyboard.h>
 #define LED			LED_BUILTIN
 #define C_NUM		4
 #define R_NUM		5
@@ -9,6 +10,13 @@ const static uint cArr[C_NUM] = {2, 3, 4, 5};
 const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
 
 bool numState[C_NUM][R_NUM] = {0};
+
+const int numpad[C_NUM][R_NUM] = {
+	{KEY_NUM_LOCK,KEYPAD_7,KEYPAD_4,KEYPAD_1,KEYPAD_0},
+	{KEYPAD_SLASH,KEYPAD_8,KEYPAD_5,KEYPAD_2,KEYPAD_0},
+	{KEYPAD_ASTERIX,KEYPAD_9,KEYPAD_6,KEYPAD_3,KEYPAD_PERIOD},
+	{KEYPAD_MINUS,KEYPAD_PLUS,KEYPAD_PLUS,KEYPAD_ENTER,KEYPAD_ENTER}
+};
 
 // const char numpad[C_NUM][R_NUM] = {
 // 	{KEY_NUM_LOCK,		KEYPAD_SLASH,		KEYPAD_ASTERIX,		KEYPAD_MINUS},
@@ -76,11 +84,11 @@ void loop()
 				numUpdated[c][r] = 0;
 				numState[c][r] = state;
 				changed = true;
-				// if(state)
-				// 	Keyboard.press(numpad[c][r]);
-				// else
-				// 	Keyboard.release(numpad[c][r]);
-				// Keyboard.send_now();
+				if(state)
+					Keyboard.press(numpad[c][r]);
+				else
+					Keyboard.release(numpad[c][r]);
+				Keyboard.send_now();
 			}
 			pinMode(rArr[r], INPUT);
 		}
