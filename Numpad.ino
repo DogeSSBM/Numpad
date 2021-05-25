@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <Keyboard.h>
+#include <Mouse.h>
 #define LED			LED_BUILTIN
 #define C_NUM		4
 #define R_NUM		5
@@ -11,12 +12,14 @@ typedef struct{
 		uint pin;
 		int min;
 		int max;
+		int neutral;
 		int state;
 	}x;
 	struct{
 		uint pin;
 		int min;
 		int max;
+		int neutral;
 		int state;
 	}y;
 	struct{
@@ -61,9 +64,15 @@ void setup()
 {
 	stick.x.pin = A9;
 	stick.x.state = 0;
+	stick.x.min = 0;
+	stick.x.neutral = 529;
+	stick.x.max = 1024;
 
 	stick.y.pin = A8;
 	stick.y.state = 0;
+	stick.y.min = 0;
+	stick.y.neutral = 531;
+	stick.y.max = 1024;
 
 	stick.btn.pin = 11;
 	stick.btn.state = 0;
@@ -112,27 +121,19 @@ void loop()
 	if(changed)
 		printAll();
 
-	changed = false;
+	stick.btn.state = !digitalRead(stick.btn.pin);
+	stick.x.state = analogRead(stick.x.pin) - stick.x.neutral;
+	stick.y.state = analogRead(stick.y.pin) - stick.y.neutral;
 
-	const bool btn = !digitalRead(stick.btn.pin);
-	changed |= btn != stick.btn.state;
-	stick.btn.state = btn;
+	const int dx = -stick.x.state/128;
+	const int dy = stick.y.state/128;
 
-	const int xval = analogRead(stick.x.pin);
-	const int xdif = abs(xval - stick.x.state);
-	changed |= xdif > 10;
-	stick.x.state = xval;
+	if(abs(stick.x.state)>100 || abs(stick.y.state)>100)
+		Mouse.move(dx, dy, 0);
 
-	const int yval = analogRead(stick.y.pin);
-	const int ydif = abs(yval - stick.y.state);
-	changed |= ydif > 10;
-	stick.y.state = yval;
-
-	char buf[32] = {0};
-	sprintf(buf, "(%4i, %4i) %s\n",
-		stick.x.state, stick.y.state, stick.btn.state?"PRESSED":"RELEASED"
-	);
-
-	if(changed)
+	if(numState[C_NUM-1][R_NUM-1]){
+		char buf[32] = {0};
+		sprintf(buf, "(%4i, %4i) (%4i, %4i)\n", stick.x.state, stick.y.state, dx, dy);
 		Serial.print(buf);
+	}
 }
