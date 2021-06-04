@@ -1,3 +1,7 @@
+#include <Adafruit_ATParser.h>
+#include <Adafruit_BluefruitLE_SPI.h>
+#include <Adafruit_BluefruitLE_UART.h>
+#include <Adafruit_BLE.h>
 #include <stdint.h>
 #include <Keyboard.h>
 #include <Mouse.h>
