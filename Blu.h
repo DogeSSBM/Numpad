@@ -4,10 +4,10 @@
 #include <Adafruit_BLE.h>
 #include <SoftwareSerial.h>
 
-#define BLUEFRUIT_SWUART_RXD_PIN			11	// Required for software serial
-#define BLUEFRUIT_SWUART_TXD_PIN			12	// Required for software serial
-#define BLUEFRUIT_UART_CTS_PIN			10	// Required for software serial
-#define BLUEFRUIT_UART_RTS_PIN			 9	// Optional, set to -1 if unused
+#define BLUEFRUIT_SWUART_RXD_PIN			14	// Required for software serial
+#define BLUEFRUIT_SWUART_TXD_PIN			15	// Required for software serial
+#define BLUEFRUIT_UART_CTS_PIN			16	// Required for software serial
+#define BLUEFRUIT_UART_RTS_PIN			17	// Optional, set to -1 if unused
 #define BLUEFRUIT_UART_MODE_PIN			-1	// Set to -1 if unused
 #define VERBOSE_MODE					true  // If set to 'true' enables debug output
 #define BUFSIZE						128	// Size of the read buffer for incoming data

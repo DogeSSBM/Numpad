@@ -61,9 +61,9 @@ void printAll(void)
 	Serial.print("\n");
 }
 
-void initCheck(const bool isOkay, const char *errStr)
+void initCheck(const bool isErr, const char *errStr)
 {
-	if(isOkay)
+	if(isErr)
 		return;
 	Serial.print("Somethin went all tits up... err - ");
 	Serial.println(errStr);
@@ -94,7 +94,7 @@ void setup()
 
 	pinMode(LED, OUTPUT);
 	Serial.begin(9600);
-	while(!Serial.dtr());
+	//while(!Serial.dtr());
 	delay(1000);
 	Serial.println("Starting...");
 
@@ -105,10 +105,10 @@ void setup()
 		pinMode(cArr[c], INPUT);
 	}
 	pinMode(stick.btn.pin, INPUT_PULLUP);
-	initCheck(ble.begin(VERBOSE_MODE), "line 109: ble.begin(VERBOSE_MODE)");
-	ble.echo(false);
-
-	Serial.println(F("Setting device name to 'Bluefruit Keyboard': "));
+	initCheck(ble.begin(true), "line 109: ble.begin(VERBOSE_MODE)");
+	ble.echo(true);
+	ble.info();
+	Serial.println("Setting device name to 'Bluefruit Keyboard': ");
 	initCheck(
 		ble.sendCommandCheckOK("AT+GAPDEVNAME=Bluefruit Keyboard"),
 		"line 113: Could not set device name?"
@@ -140,7 +140,9 @@ void loop()
 				changed = true;
 				if(state){
 					// Keyboard.press(numpad[c][r]);
-					ble.print(numpad[c][r]);
+					ble.print("AT+BleKeyboard=");
+					ble.write(numpad[c][r]);
+					ble.println("");
 				}else{
 					// Keyboard.release(numpad[c][r]);
 					// Keyboard.send_now();
