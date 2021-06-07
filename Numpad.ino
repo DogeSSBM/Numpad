@@ -1,10 +1,7 @@
-#include <Adafruit_ATParser.h>
-#include <Adafruit_BluefruitLE_SPI.h>
-#include <Adafruit_BluefruitLE_UART.h>
-#include <Adafruit_BLE.h>
 #include <stdint.h>
 #include <Keyboard.h>
-#include <Mouse.h>
+// #include <Mouse.h>
+#include "Blu.h"
 #define LED			LED_BUILTIN
 #define C_NUM		4
 #define R_NUM		5
@@ -32,7 +29,7 @@ typedef struct{
 	}btn;
 }Stick;
 
-Stick stick = {0};
+Stick stick;
 
 const static uint cArr[C_NUM] = {2, 3, 4, 5};
 const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
@@ -64,6 +61,20 @@ void printAll(void)
 	Serial.print("\n");
 }
 
+void initCheck(const bool isOkay, const char *errStr)
+{
+	if(isOkay)
+		return;
+	Serial.print("Somethin went all tits up... err - ");
+	Serial.println(errStr);
+	while(1){
+		digitalWrite(LED_BUILTIN, HIGH);
+		delay(500);
+		digitalWrite(LED_BUILTIN, LOW);
+		delay(500);
+	}
+}
+
 void setup()
 {
 	stick.x.pin = A9;
@@ -86,6 +97,7 @@ void setup()
 	while(!Serial.dtr());
 	delay(1000);
 	Serial.println("Starting...");
+
 	for(uint r = 0; r < R_NUM; r++){
 		pinMode(rArr[r], INPUT_PULLUP);
 	}
@@ -93,6 +105,20 @@ void setup()
 		pinMode(cArr[c], INPUT);
 	}
 	pinMode(stick.btn.pin, INPUT_PULLUP);
+	initCheck(ble.begin(VERBOSE_MODE), "line 109: ble.begin(VERBOSE_MODE)");
+	ble.echo(false);
+
+	Serial.println(F("Setting device name to 'Bluefruit Keyboard': "));
+	initCheck(
+		ble.sendCommandCheckOK("AT+GAPDEVNAME=Bluefruit Keyboard"),
+		"line 113: Could not set device name?"
+	);
+	initCheck(
+		ble.sendCommandCheckOK("AT+BleHIDEn=On"),
+		"line 117: Could not enable Keyboard"
+	);
+	initCheck(ble.reset(), "line 120: Couldn't reset");
+
 }
 
 void loop()
@@ -112,11 +138,13 @@ void loop()
 				numUpdated[c][r] = 0;
 				numState[c][r] = state;
 				changed = true;
-				// if(state)
-				// 	Keyboard.press(numpad[c][r]);
-				// else
-				// 	Keyboard.release(numpad[c][r]);
-				// Keyboard.send_now();
+				if(state){
+					// Keyboard.press(numpad[c][r]);
+					ble.print(numpad[c][r]);
+				}else{
+					// Keyboard.release(numpad[c][r]);
+					// Keyboard.send_now();
+				}
 			}
 			pinMode(rArr[r], INPUT);
 		}
@@ -132,8 +160,8 @@ void loop()
 	const int dx = -stick.x.state/128;
 	const int dy = stick.y.state/128;
 
-	if(abs(stick.x.state)>100 || abs(stick.y.state)>100)
-		Mouse.move(dx, dy, 0);
+	// if(abs(stick.x.state)>100 || abs(stick.y.state)>100)
+		// Mouse.move(dx, dy, 0);
 
 	if(numState[C_NUM-1][R_NUM-1]){
 		char buf[32] = {0};
