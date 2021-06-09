@@ -1,12 +1,24 @@
 #include <stdint.h>
 #include <Keyboard.h>
-// #include <Mouse.h>
+#include <Mouse.h>
 #include "Blu.h"
+#include "Types.h"
+#include "Vec.h"
+
 #define LED			LED_BUILTIN
 #define C_NUM		4
 #define R_NUM		5
 #define KEYMAP_NUM	1
-typedef unsigned int	uint;
+
+int imin(const int num1, const int num2)
+{
+	return num1 < num2 ? num1 : num2;
+}
+
+int imax(const int num1, const int num2)
+{
+	return num1 > num2 ? num1 : num2;
+}
 
 typedef struct{
 	struct{
@@ -31,9 +43,18 @@ typedef struct{
 
 Stick stick;
 
+Coordf stickToCf(void)
+{
+	return (const Coordf){
+		-(float)(stick.x.state-stick.x.neutral),
+		(float)(stick.y.state-stick.y.neutral)
+	};
+}
+
 const static uint cArr[C_NUM] = {2, 3, 4, 5};
 const static uint rArr[R_NUM] = {6, 7, 8, 9, 10};
 
+bool numStateLast[C_NUM][R_NUM] = {0};
 bool numState[C_NUM][R_NUM] = {0};
 
 const int numpad[C_NUM][R_NUM] = {
@@ -127,6 +148,7 @@ void loop()
 	// static uint selection = 0;
 
 	bool changed = false;
+	static bool log = true;
 	for(uint c = 0; c < C_NUM; c++){
 		pinMode(cArr[c], OUTPUT);
 		digitalWrite(cArr[c], LOW);
@@ -136,13 +158,14 @@ void loop()
 			const bool state = !digitalRead(rArr[r]);
 			if(numUpdated[c][r] > 50 && state != numState[c][r]){
 				numUpdated[c][r] = 0;
+				numStateLast[c][r] = numState[c][r];
 				numState[c][r] = state;
 				changed = true;
 				if(state){
 					// Keyboard.press(numpad[c][r]);
-					ble.print("AT+BleKeyboard=");
-					ble.write(numpad[c][r]);
-					ble.println("");
+					// ble.print("AT+BleKeyboard=");
+					// ble.write(numpad[c][r]);
+					// ble.println("");
 				}else{
 					// Keyboard.release(numpad[c][r]);
 					// Keyboard.send_now();
@@ -152,22 +175,22 @@ void loop()
 		}
 		pinMode(cArr[c], INPUT);
 	}
-	if(changed)
-		printAll();
+	if(numState[0][0] && !numStateLast[0][0])
+		log = !log;
+	// if(changed)
+		// printAll();
 
 	stick.btn.state = !digitalRead(stick.btn.pin);
-	stick.x.state = analogRead(stick.x.pin) - stick.x.neutral;
-	stick.y.state = analogRead(stick.y.pin) - stick.y.neutral;
+	stick.x.state = analogRead(stick.x.pin);
+	stick.y.state = analogRead(stick.y.pin);
+	Coordf stickVec = stickToCf();
+	float stickAng = cfToRad(stickVec);
 
-	const int dx = -stick.x.state/128;
-	const int dy = stick.y.state/128;
-
-	// if(abs(stick.x.state)>100 || abs(stick.y.state)>100)
+	const Coord stickVeci = CfC(stickVec);
+	if(log){
 		// Mouse.move(dx, dy, 0);
-
-	if(numState[C_NUM-1][R_NUM-1]){
 		char buf[32] = {0};
-		sprintf(buf, "(%4i, %4i) (%4i, %4i)\n", stick.x.state, stick.y.state, dx, dy);
+		sprintf(buf, "(%4i, %4i) raw: (%4i, %4i)\n", stickVeci.x, stickVeci.y, stick.x.state, stick.y.state);
 		Serial.print(buf);
 	}
 }
