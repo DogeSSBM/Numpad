@@ -6,14 +6,19 @@
 #define YLEN                R_NUM
 
 #define LED                 LED_BUILTIN
-#define CE                  17
-#define CSN                 14
+#define CE                  0
+#define CSN                 10
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
 
 typedef unsigned int        uint;
 typedef unsigned long       ul;
 typedef uint8_t             u8;
+typedef uint16_t            u16;
+typedef uint32_t            u32;
+typedef int8_t              i8;
+typedef int16_t             i16;
+typedef int32_t             i32;
 
 const uint cArr[C_NUM] = {2, 3, 4, 5};
 const uint rArr[R_NUM] = {6, 7, 8, 9, 18};

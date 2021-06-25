@@ -6,8 +6,8 @@
 #define YLEN                R_NUM
 
 #define LED                 LED_BUILTIN
-#define CE                  17
-#define CSN                 14
+#define CE                  0
+#define CSN                 10
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
 
@@ -33,11 +33,16 @@
 #define K_ADD               KEYPAD_PLUS
 #define K_RET               KEYPAD_ENTER
 
-typedef uint8_t             u8;
 typedef unsigned int        uint;
 typedef unsigned long       ul;
+typedef uint8_t             u8;
+typedef uint16_t            u16;
+typedef uint32_t            u32;
+typedef int8_t              i8;
+typedef int16_t             i16;
+typedef int32_t             i32;
 
-const char code[C_NUM][R_NUM] = {
+const int code[C_NUM][R_NUM] = {
     {K_NUM, K_7,    K_4,    K_1,    K_0},
     {K_DIV, K_8,    K_5,    K_2,    K_0},
     {K_MUL, K_9,    K_6,    K_3,    K_DOT},
@@ -58,7 +63,7 @@ void rxInit(void)
     digitalWrite(LED, LOW);
     radio.init(RXID, CE, CSN); // Id=0
     Serial.begin(9600);
+    Serial.println("...");
     delay(1000);
     Serial.println("Dongle online...");
-    Keyboard.begin();
 }

@@ -17,8 +17,9 @@ void loop()
                 Serial.print("Key: ");
                 Serial.print(label[x][y]);
                 Serial.println(keyState(x,y)?" pressed":" released");                digitalWrite(LED, HIGH);
-                const u8 data[3] = {keyState(x,y)?255:0, x, y};
-                radio.send(RXID, data, 3);
+                u8 data[5] = {(u8)250, keyState(x,y)?(u8)255:(u8)0, x, y, (u8)240};
+                for(uint i = 0; i < 5; i++)
+                    radio.send(RXID, &data[i], sizeof(u8));
                 digitalWrite(LED, LOW);
             }
         }
