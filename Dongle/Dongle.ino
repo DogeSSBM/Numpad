@@ -11,6 +11,19 @@ void sync()
 
 }
 
+void hang(const char *msg)
+{
+    Keyboard.releaseAll();
+    Keyboard.end();
+    Serial.println(msg);
+    while(1){
+        digitalWrite(LED, HIGH);
+        delay(500);
+        digitalWrite(LED, LOW);
+        delay(500);
+    }
+}
+
 void setup()
 {
     Keyboard.begin();
@@ -30,24 +43,21 @@ void loop()
     }
 
     if(data[0] != 250 || data[4] != 240){
-        Serial.println("Out of sync");
-        sync();
+        hang("Out of sync");
     }
 
-    // for(uint i = 0; i < size; i++){
-    //     Serial.print("raw ");
-    //     Serial.print(i);
-    //     Serial.print(": ");
-    //     Serial.println(data[i]);
-    // }
+    char l = label[data[2]][data[3]];
+    int c = code[data[2]][data[3]];
 
     Serial.print("Key: ");
-    Serial.print(label[data[2]][data[3]]);
+    Serial.print(l);
     Serial.println(data[1]?" pressed":" released");
 
-    // if(data[0])
-    //     Keyboard.press(code[data[1]][data[2]]);
-    // else
-    //     Keyboard.release(code[data[1]][data[2]]);
-    // Keyboard.send_now();
+    if(data[1]==255)
+        Keyboard.press(c);
+    else if(data[1]==0)
+        Keyboard.release(c);
+    else
+        hang("unknown data[1] value");
+    Keyboard.send_now();
 }
