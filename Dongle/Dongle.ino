@@ -4,11 +4,13 @@
 void sync()
 {
     u8 data = 0;
-    while(data != 240){
-        if(radio.hasData())
+    do{
+        if(radio.hasData()){
             radio.readData(&data);
-    }
-
+            Serial.print("Sync packet data: ");
+            Serial.println(data, HEX);
+        }
+    }while(data != 240);
 }
 
 void hang(const char *msg)
@@ -31,27 +33,34 @@ void setup()
     sync();
 }
 
+bool readDataBytes(u8 *data,  const u8 numBytes)
+{
+    for(uint i = 0; i < numBytes; i++){
+        while(!radio.hasData());
+        radio.readData(&data[i]);
+        Serial.print("Recived data packet ");
+        Serial.print(i);
+        Serial.print(". Data: ");
+        Serial.println(data[i]);
+    }
+    return data[0] == 250 && data[4] == 240;
+}
+
 void loop()
 {
     uint8_t data[5] = {0};
-    u8 size = 0;
-    while(size < 5){
-        if(radio.hasData()){
-            radio.readData(&data[size]);
-            size++;
-        }
-    }
 
-    if(data[0] != 250 || data[4] != 240){
+    if(!readDataBytes(data, 5))
         hang("Out of sync");
-    }
 
     char l = label[data[2]][data[3]];
     int c = code[data[2]][data[3]];
 
     Serial.print("Key: ");
-    Serial.print(l);
-    Serial.println(data[1]?" pressed":" released");
+    Serial.println(l);
+    Serial.print("Code: ");
+    Serial.println(c, HEX);
+    Serial.println(data[1]?"Pressed\n":"Released\n");
 
     if(data[1]==255)
         Keyboard.press(c);

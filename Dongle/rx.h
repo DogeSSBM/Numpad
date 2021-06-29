@@ -6,7 +6,7 @@
 #define YLEN                R_NUM
 
 #define LED                 LED_BUILTIN
-#define CE                  0
+#define CE                  2
 #define CSN                 10
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
@@ -55,6 +55,7 @@ const char label[C_NUM][R_NUM] = {
     {'*','9','6','3','.'},
     {'-','+','+','E','E'}
 };
+
 NRFLite radio;
 
 void rxInit(void)
@@ -63,7 +64,6 @@ void rxInit(void)
     digitalWrite(LED, LOW);
     radio.init(RXID, CE, CSN); // Id=0
     Serial.begin(9600);
-    Serial.println("...");
     delay(1000);
     Serial.println("Dongle online...");
 }

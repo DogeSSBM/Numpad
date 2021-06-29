@@ -34,17 +34,6 @@ const char label[C_NUM][R_NUM] = {
 
 NRFLite radio;
 
-void printAll(void)
-{
-    for(uint r = 0; r < R_NUM; r++){
-        for(uint c = 0; c < C_NUM; c++){
-            Serial.print(state[c][r]? '-' : '#');
-        }
-        Serial.print("\n");
-    }
-    Serial.print("\n");
-}
-
 bool keyHeld(const uint x,/* x == c */const uint y/* y == r */)
 {
     return state[x][y] && last[x][y];
@@ -87,6 +76,22 @@ bool keyPollAll(void)
         pinMode(cArr[c], INPUT);
     }
     return event;
+}
+
+void printAll(void)
+{
+    for(uint r = 0; r < R_NUM; r++){
+        for(uint c = 0; c < C_NUM; c++){
+            if(keyPressed(c,r))
+                Serial.print('v');
+            else if(keyReleased(c,r))
+                Serial.print('^');
+            else
+                Serial.print(keyState(c,r)?'_':'-');
+        }
+        Serial.print("\n");
+    }
+    Serial.print("\n");
 }
 
 void txInit(void)

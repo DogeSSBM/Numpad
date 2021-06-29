@@ -9,7 +9,6 @@ void setup()
 void loop()
 {
     while(!keyPollAll());
-    printAll();
 
     for(u8 x = 0; x < XLEN; x++){
         for(u8 y = 0; y < YLEN; y++){
@@ -24,4 +23,5 @@ void loop()
             }
         }
     }
+    printAll();
 }
