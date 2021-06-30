@@ -11,6 +11,9 @@
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
 
+#define SYM_START           250
+#define SYM_END             240
+
 typedef unsigned int        uint;
 typedef unsigned long       ul;
 typedef uint8_t             u8;
