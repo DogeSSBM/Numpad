@@ -3,7 +3,7 @@
 
 void sync()
 {
-    u8 data = 0;
+    u8 data;
     do{
         if(radio.hasData()){
             radio.readData(&data);
@@ -50,8 +50,10 @@ void loop()
 {
     uint8_t data[5] = {0};
 
-    if(!readDataBytes(data, 5))
-        hang("Out of sync");
+    if(!readDataBytes(data, 5)){
+        sync();
+        // hang("Out of sync");
+    }
 
     char l = label[data[2]][data[3]];
     int c = code[data[2]][data[3]];
@@ -66,7 +68,9 @@ void loop()
         Keyboard.press(c);
     else if(data[1]==0)
         Keyboard.release(c);
-    else
-        hang("unknown data[1] value");
+    else{
+        Serial.println("unknown data[1] value");
+        sync();
+    }
     Keyboard.send_now();
 }
