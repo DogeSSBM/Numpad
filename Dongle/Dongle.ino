@@ -50,10 +50,8 @@ void loop()
 {
     uint8_t data[5] = {0};
 
-    if(!readDataBytes(data, 5)){
+    if(!readDataBytes(data, 5))
         sync();
-        // hang("Out of sync");
-    }
 
     char l = label[data[2]][data[3]];
     int c = code[data[2]][data[3]];

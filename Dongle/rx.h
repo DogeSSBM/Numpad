@@ -6,7 +6,7 @@
 #define YLEN                R_NUM
 
 #define LED                 LED_BUILTIN
-#define CE                  0
+#define CE                  14
 #define CSN                 10
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
