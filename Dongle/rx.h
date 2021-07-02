@@ -11,6 +11,9 @@
 #define TXID                1       // transmitter id (Numpad)
 #define RXID                0       // receiver id (Dongle)
 
+#define SYM_START           250
+#define SYM_END             240
+
 #define K_NUM               KEY_NUM_LOCK
 #define K_7                 KEYPAD_7
 #define K_4                 KEYPAD_4
@@ -56,6 +59,23 @@ const char label[C_NUM][R_NUM] = {
     {'-','+','+','E','E'}
 };
 
+typedef union{
+    u8 arr[5];
+    struct{
+        u8 start;
+        u8 state;
+        union{
+            u8 x;
+            u8 c;
+        };
+        union{
+            u8 y;
+            u8 r;
+        };
+        u8 end;
+    };
+}Packet;
+
 NRFLite radio;
 
 void rxInit(void)
@@ -66,4 +86,53 @@ void rxInit(void)
     Serial.begin(9600);
     delay(1000);
     Serial.println("Dongle online...");
+}
+
+u8 awaitByte(void)
+{
+    u8 ret;
+    while(!radio.hasData());
+    radio.readData(&ret);
+    return ret;
+}
+
+Packet readPacket(void)
+{
+    Packet p = {0};
+    do{
+        while((p.start = awaitByte()) != SYM_START);
+
+        for(uint i = 0; i < 3; i++){
+            p.arr[i+1] = awaitByte();
+        }
+
+    }while((p.end = awaitByte()) != SYM_END);
+
+    return p;
+}
+
+int getCode(const u8 x, const u8 y)
+{
+    return code[x][y];
+}
+
+char getLabel(const u8 x, const u8 y)
+{
+    return label[x][y];
+}
+
+void printPacket(const Packet p)
+{
+    Serial.print("Key Pos: (");
+    Serial.print((char)('0'+p.x/10));
+    Serial.print((char)('0'+p.x%10));
+    Serial.print(",");
+    Serial.print((char)('0'+p.y/10));
+    Serial.print((char)('0'+p.y%10));
+    Serial.println(")");
+    Serial.print("Key: ");
+    Serial.print(getLabel(p.x, p.y));
+    Serial.print(" Code: ");
+    Serial.println(getCode(p.x, p.y), HEX);
+    Serial.println(p.state?"Pressed\n":"Released\n");
 }
